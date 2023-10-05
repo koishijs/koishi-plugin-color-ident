@@ -1,0 +1,64 @@
+{
+  "name": "koishi-plugin-color-ident",
+  "version": "1.0.0",
+  "description": "Color identify game for Koishi",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "files": [
+    "lib"
+  ],
+  "contributors": [
+    "Shigma <shigma10826@gmail.com>"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/koishijs/koishi-plugin-color-ident",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/koishijs/koishi-plugin-color-ident.git"
+  },
+  "bugs": {
+    "url": "https://github.com/koishijs/koishi-plugin-color-ident/issues"
+  },
+  "keywords": [
+    "bot",
+    "chatbot",
+    "koishi",
+    "plugin",
+    "game",
+    "color",
+    "ident",
+    "test",
+    "quiz"
+  ],
+  "koishi": {
+    "browser": true,
+    "service": {
+      "required": [
+        "canvas"
+      ]
+    },
+    "description": {
+      "en": "Color Identify Game for Koishi",
+      "zh": "色彩识别小游戏"
+    }
+  },
+  "scripts": {
+    "build": "atsc -b",
+    "lint": "eslint --ext=ts --cache"
+  },
+  "devDependencies": {
+    "@koishijs/canvas": "^0.1.1",
+    "@koishijs/eslint-config": "^1.0.4",
+    "@types/node": "^20.4.2",
+    "atsc": "^1.1.2",
+    "esbuild": "^0.15.15",
+    "esbuild-register": "^3.4.1",
+    "eslint": "^8.45.0",
+    "koishi": "^4.15.0",
+    "typescript": "^5.2.2",
+    "yml-register": "^1.1.0"
+  },
+  "peerDependencies": {
+    "koishi": "^4.15.0"
+  }
+}
