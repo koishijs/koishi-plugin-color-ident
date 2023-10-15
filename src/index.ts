@@ -1,4 +1,4 @@
-import { Context, Logger, Random, Session } from 'koishi'
+import { Context, Logger, Random, Schema, Session } from 'koishi'
 import {} from '@koishijs/canvas'
 
 const logger = new Logger('color-ident')
@@ -140,11 +140,36 @@ class ColorIdent {
 export const name = 'color-ident'
 export const using = ['canvas']
 
-export function apply(ctx: Context) {
+export interface Config {
+  middleware: 'disabled' | 'enabled' | 'restricted'
+}
+
+export const Config: Schema<Config> = Schema.object({
+  middleware: Schema.union([
+    Schema.const('disabled').description('只接受指令输入。'),
+    Schema.const('enabled').description('接受任何中间件输入。'),
+    Schema.const('restricted').description('仅在私聊或被提及时接受中间件输入。'),
+  ]).role('radio').description('中间件模式。').default('restricted'),
+})
+
+export function apply(ctx: Context, config: Config) {
   const states: Record<string, ColorIdent> = {}
 
+  ctx.middleware(async (session, next) => {
+    const state = states[session.channelId]
+    if (!state || config.middleware === 'disabled') return next()
+    const { content, atSelf } = session.stripped
+    if (!session.isDirect && !atSelf && config.middleware !== 'enabled') return next()
+    if (!/^([a-z]\d|\d[a-z])$/i.test(content)) {
+      return next()
+    }
+    return session.execute({
+      name: 'color-ident',
+      args: [content],
+    })
+  })
+
   ctx.command('color-ident [position]', '色彩识别测试')
-    .alias('scsb')
     .alias('色彩识别')
     .option('quit', '-q  停止测试')
     .action(async ({ session, options }, position) => {
@@ -168,12 +193,19 @@ export function apply(ctx: Context) {
       const state = states[id]
       if (!position) return '请输入坐标。'
 
-      if (!/^[a-z]\d+$/i.test(position)) {
+      if (!/^([a-z]\d|\d[a-z])$/i.test(position)) {
         return '请输入由字母+数字构成的坐标。'
       }
 
-      const x = position.charCodeAt(0) % 32 - 1
-      const y = parseInt(position.slice(1)) - 1
+      let x: number, y: number
+      if (position[0] > '9') {
+        x = position.charCodeAt(0) % 32 - 1
+        y = parseInt(position.slice(1)) - 1
+      } else {
+        x = position.charCodeAt(position.length - 1) % 32 - 1
+        y = parseInt(position.slice(0, -1)) - 1
+      }
+
       if (x !== state.line || y !== state.row) {
         return '回答错误。'
       }
